@@ -17,7 +17,7 @@ def melspectrogram(
     hop_length=200,
     win_length=800,
     n_fft=2048,
-    n_mels=80,
+    n_mels=128,
     fmin=50,
     preemph=0.97,
     top_db=80,
@@ -51,7 +51,8 @@ def process_wav(wav_path, out_path, cfg):
     wav, _ = librosa.load(wav_path.with_suffix(".wav"), sr=cfg.sr)
     loudness = meter.integrated_loudness(wav)
     wav = pyln.normalize.loudness(wav, loudness, -24)
-    if (peak := np.abs(wav).max()) >= 1:
+    peak = np.abs(wav).max()
+    if peak >= 1:
         wav = wav / peak * 0.999
 
     logmel = melspectrogram(
@@ -80,9 +81,8 @@ def process_wav(wav_path, out_path, cfg):
 
 @hydra.main(config_path="config", config_name="preprocess")
 def preprocess_dataset(cfg):
-    print(OmegaConf.to_yaml(cfg))
     in_dir = Path(utils.to_absolute_path(cfg.in_dir))
-    out_dir = Path(utils.to_absolute_path("datasets"))
+    out_dir = Path(utils.to_absolute_path(cfg.out_dir))
     out_dir.mkdir(parents=True, exist_ok=True)
 
     executor = ProcessPoolExecutor(max_workers=cpu_count())

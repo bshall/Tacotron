@@ -115,9 +115,10 @@ datasets/
 *.npy
 
 # Submission
-submission/
 *.wav
-submission.zip
 
 # Hydra outputs
 outputs/
+
+# tensorboard outputs
+tensorboard/

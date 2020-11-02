@@ -2,6 +2,7 @@
 
 import re
 from itertools import islice
+import importlib_resources
 
 SYMBOLS = [
     "_",  # padding
@@ -176,9 +177,12 @@ def tokenize(text):
     return re.findall(tokenizer_regex, text)
 
 
-def load_cmudict(path):
+def load_cmudict():
     cmudict = dict()
-    with open(path, encoding="ISO-8859-1") as file:
+    dict_ref = importlib_resources.files("tacotron.dictionary").joinpath(
+        "cmudict-0.7b.txt"
+    )
+    with open(dict_ref, encoding="ISO-8859-1") as file:
         for line in islice(file, 126, 133905):
             word, pronunciation = line.strip().split("  ")
             word = re.sub(alternate_pronunciation_regex, r"{\1}", word)
@@ -208,3 +212,8 @@ def parse_text(text, cmudict):
 
 def symbols_to_id(symbols):
     return [symbol_to_id[symbol] for word in symbols for symbol in word]
+
+
+def text_to_id(text, cmudict):
+    symbols = parse_text(text, cmudict)
+    return symbols_to_id(symbols)

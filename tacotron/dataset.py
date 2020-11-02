@@ -8,7 +8,7 @@ import math
 from pathlib import Path
 import json
 
-from text import load_cmudict, parse_text, symbols_to_id, symbol_to_id
+from tacotron import load_cmudict, text_to_id
 
 
 class SortedSampler(samplers.Sampler):
@@ -74,7 +74,7 @@ class BucketBatchSampler(samplers.BatchSampler):
 
 
 class TTSDataset(Dataset):
-    def __init__(self, root, text_path, cmudict_path):
+    def __init__(self, root, text_path):
         self.root = Path(root)
 
         with open(self.root / "train.json") as file:
@@ -90,13 +90,15 @@ class TTSDataset(Dataset):
 
         self.index_longest_mel = np.argmax(self.lengths)
 
-        self.cmudict = load_cmudict(cmudict_path)
+        self.cmudict = load_cmudict()
 
+        keys = {path.stem for path in self.metadata}
         with open(text_path) as file:
             self.text = {}
             for line in file:
                 key, _, transcript = line.strip().split("|")
-                self.text[key] = parse_text(transcript, self.cmudict)
+                if key in keys:
+                    self.text[key] = transcript
 
     def sort_key(self, index):
         return self.lengths[index]
@@ -109,8 +111,7 @@ class TTSDataset(Dataset):
 
         mel = np.load(path.with_suffix(".mel.npy"))
 
-        symbols = self.text[path.stem]
-        symbols = symbols_to_id(symbols)
+        text = text_to_id(self.text[path.stem], self.cmudict)
 
         return (
             torch.Tensor(mel).transpose_(0, 1),

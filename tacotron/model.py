@@ -4,6 +4,9 @@ import torch.nn.functional as F
 import numpy as np
 from scipy.stats import betabinom
 
+import importlib_resources
+from omegaconf import OmegaConf
+
 
 class PreNet(nn.Module):
     def __init__(
@@ -65,7 +68,16 @@ class HighwayNetwork(nn.Module):
 
 
 class CBHG(nn.Module):
-    def __init__(self, K, input_channels, channels, projection_channels, n_highways):
+    def __init__(
+        self,
+        K,
+        input_channels,
+        channels,
+        projection_channels,
+        n_highways,
+        highway_size,
+        rnn_size,
+    ):
         super().__init__()
 
         self.conv_bank = nn.ModuleList(
@@ -78,14 +90,20 @@ class CBHG(nn.Module):
 
         self.conv_projections = nn.Sequential(
             BatchNormConv(K * channels, projection_channels, 3),
-            BatchNormConv(projection_channels, projection_channels, 3, relu=False),
+            BatchNormConv(projection_channels, input_channels, 3, relu=False),
+        )
+
+        self.project = (
+            nn.Linear(input_channels, highway_size, bias=False)
+            if input_channels != highway_size
+            else None
         )
 
         self.highway = nn.Sequential(
-            *[HighwayNetwork(channels) for _ in range(n_highways)]
+            *[HighwayNetwork(highway_size) for _ in range(n_highways)]
         )
 
-        self.rnn = nn.GRU(channels, channels, batch_first=True, bidirectional=True)
+        self.rnn = nn.GRU(highway_size, rnn_size, batch_first=True, bidirectional=True)
 
     def forward(self, x):
         T = x.size(-1)
@@ -101,8 +119,12 @@ class CBHG(nn.Module):
         x = self.conv_projections(x[:, :, :T])
 
         x = x + residual
+        x = x.transpose(1, 2)
 
-        x = self.highway(x.transpose(1, 2))
+        if self.project is not None:
+            x = self.project(x)
+
+        x = self.highway(x)
 
         x, _ = self.rnn(x)
         return x
@@ -246,8 +268,32 @@ class Tacotron(nn.Module):
         self.n_mels = decoder.n_mels
         self.reduction_factor = decoder.reduction_factor
 
+        self.dictionary = None
+
         self.encoder = Encoder(**encoder)
         self.decoder_cell = DecoderCell(**decoder)
+
+    @classmethod
+    def from_pretrained(cls, url, cfg_path=None):
+        r"""
+        Loads the Torch serialized object at the given URL (uses torch.hub.load_state_dict_from_url).
+
+        Parameters:
+            url (string): URL of the weights to download
+            cfg_path (Path): path to config file. Defaults to tacotron/config/config.yaml
+        """
+        cfg_ref = (
+            importlib_resources.files("tacotron.config").joinpath("config.yaml")
+            if cfg_path is None
+            else cfg_path
+        )
+        with cfg_ref.open() as file:
+            cfg = OmegaConf.load(file)
+        checkpoint = torch.hub.load_state_dict_from_url(url)
+        model = cls(**cfg.model)
+        model.load_state_dict(checkpoint["tacotron"])
+        model.eval()
+        return model
 
     def forward(self, x, mels):
         B, N, T = mels.size()
@@ -289,7 +335,7 @@ class Tacotron(nn.Module):
         alphas = torch.stack(alphas, dim=2)
         return ys, alphas
 
-    def generate(self, x, max_length=10000, stop_threshold=-0.1):
+    def generate(self, x, max_length=10000, stop_threshold=-0.2):
         h = self.encoder(x)
         B, T, _ = h.size()
 
@@ -313,6 +359,7 @@ class Tacotron(nn.Module):
 
         go_frame = torch.zeros(B, self.n_mels, device=x.device)
 
+        k = 0
         ys, alphas = list(), list()
         for t in range(0, max_length, self.reduction_factor):
             y = ys[-1][:, :, -1] if t > 0 else go_frame
