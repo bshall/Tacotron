@@ -1,6 +1,10 @@
+<p align="center">
+    <a href="https://colab.research.google.com/github/bshall/Tacotron/blob/main/tacotron-demo.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+</p>
+
 # Tacotron (with Dynamic Convolution Attention)
 
-A PyTorch implementation of [Location-Relative Attention Mechanisms For Robust Long-Form Speech Synthesis](https://arxiv.org/abs/1910.10288). Audio samples can be found [here](bshall.github.io/tacotron/).
+A PyTorch implementation of [Location-Relative Attention Mechanisms For Robust Long-Form Speech Synthesis](https://arxiv.org/abs/1910.10288). Audio samples can be found [here](bshall.github.io/tacotron/). Colab demo can be found [here](https://colab.research.google.com/github/bshall/Tacotron/blob/main/tacotron-demo.ipynb).
 
 <div align="center">
     <img width="655" height="390" alt="Tacotron (with Dynamic Convolution Attention)" 
@@ -22,6 +26,11 @@ pip install tacotron
 ```
 
 ## Example Usage
+
+<p align="center">
+    <a href="https://colab.research.google.com/github/bshall/Tacotron/blob/main/tacotron-demo.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+</p>
+
 
 ```python
 import torch
@@ -46,11 +55,11 @@ cmudict["PYTORCH"] = "P AY1 T AO2 R CH"
 text = "A PyTorch implementation of Location-Relative Attention Mechanisms For Robust Long-Form Speech Synthesis."
 
 # convert text to phone ids
-text = torch.LongTensor(text_to_id(text, cmudict)).unsqueeze(0).cuda()
+x = torch.LongTensor(text_to_id(text, cmudict)).unsqueeze(0).cuda()
 
 # synthesize audio
 with torch.no_grad():
-    mel, _ = tacotron.generate(text)
+    mel, _ = tacotron.generate(x)
     wav, sr = vocoder.generate(mel.transpose(1, 2))
 
 # save output
