@@ -79,7 +79,7 @@ def process_wav(wav_path, out_path, cfg):
     return out_path, logmel.shape[-1]
 
 
-@hydra.main(config_path="config", config_name="preprocess")
+@hydra.main(config_path="tacotron/config", config_name="preprocess")
 def preprocess_dataset(cfg):
     in_dir = Path(utils.to_absolute_path(cfg.in_dir))
     out_dir = Path(utils.to_absolute_path(cfg.out_dir))

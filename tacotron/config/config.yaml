@@ -15,7 +15,7 @@ preprocess:
 train:
   batch_size: 64
   bucket_size_multiplier: 5
-  n_steps: 250000
+  n_steps: 300000
   clip_grad_norm: 0.05
   optimizer:
     lr: 1e-3

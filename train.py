@@ -69,7 +69,7 @@ def log_alignment(alpha, y, cfg, writer, global_step):
     writer.add_figure("mel", fig, global_step)
 
 
-@hydra.main(config_path="config", config_name="train")
+@hydra.main(config_path="tacotron/config", config_name="train")
 def train_model(cfg):
     tensorboard_path = Path(utils.to_absolute_path("tensorboard")) / cfg.checkpoint_dir
     checkpoint_dir = Path(utils.to_absolute_path(cfg.checkpoint_dir))
@@ -96,7 +96,7 @@ def train_model(cfg):
     else:
         global_step = 0
 
-    root_path = Path(utils.to_absolute_path(cfg.dataset_path))
+    root_path = Path(utils.to_absolute_path(cfg.dataset_dir))
     text_path = Path(utils.to_absolute_path(cfg.text_path))
 
     dataset = TTSDataset(root_path, text_path)
@@ -120,7 +120,7 @@ def train_model(cfg):
     start_epoch = global_step // len(loader) + 1
 
     for epoch in range(start_epoch, n_epochs + 1):
-        average_loss = average_postnet_loss = 0
+        average_loss = 0
 
         for i, (mels, texts, mel_lengths, text_lengths, attn_flag) in enumerate(
             tqdm(loader), 1
@@ -139,6 +139,7 @@ def train_model(cfg):
             scaler.step(optimizer)
             scaler.update()
             scheduler.step()
+
             global_step += 1
 
             average_loss += (loss.item() - average_loss) / i

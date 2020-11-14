@@ -8,7 +8,7 @@ import math
 from pathlib import Path
 import json
 
-from tacotron import load_cmudict, text_to_id
+from tacotron import load_cmudict, text_to_id, symbol_to_id
 
 
 class SortedSampler(samplers.Sampler):
@@ -115,7 +115,7 @@ class TTSDataset(Dataset):
 
         return (
             torch.Tensor(mel).transpose_(0, 1),
-            torch.LongTensor(symbols),
+            torch.LongTensor(text),
             index == self.index_longest_mel,
         )
 
