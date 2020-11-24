@@ -101,7 +101,7 @@ optional arguments:
 ```
 6. Train the model:
 ```
-pipenv run python train.py ljspeech datasets/LJSpeech-1.1 text_dir=path/to/LJSpeech-1.1/metadata.csv
+pipenv run python train.py ljspeech datasets/LJSpeech-1.1 path/to/LJSpeech-1.1/metadata.csv
 ```
 ```
 usage: train.py [-h] [--resume RESUME] checkpoint_dir text_path dataset_dir
