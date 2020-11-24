@@ -1,19 +1,20 @@
+import json
+import math
+from pathlib import Path
+
+import numpy as np
 import torch
 import torch.nn.functional as F
 import torch.utils.data.sampler as samplers
-from torch.utils.data import Dataset, DataLoader
 from torch.nn.utils.rnn import pad_sequence
-import numpy as np
-import math
-from pathlib import Path
-import json
+from torch.utils.data import Dataset
 
-from tacotron import load_cmudict, text_to_id, symbol_to_id
+from .text import load_cmudict, symbol_to_id, text_to_id
 
 
 class SortedSampler(samplers.Sampler):
     """
-    Adapted from https://github.com/PetrochukM/PyTorch-NLP/blob/master/torchnlp/samplers/sorted_sampler.py
+    Adapted from https://github.com/PetrochukM/PyTorch-NLP
     Copyright (c) James Bradbury and Soumith Chintala 2016,
     All rights reserved.
     """
@@ -35,7 +36,7 @@ class SortedSampler(samplers.Sampler):
 
 class BucketBatchSampler(samplers.BatchSampler):
     """
-    Adapted from https://github.com/PetrochukM/PyTorch-NLP/blob/master/torchnlp/samplers/bucket_batch_sampler.py
+    Adapted from https://github.com/PetrochukM/PyTorch-NLP
     Copyright (c) James Bradbury and Soumith Chintala 2016,
     All rights reserved.
     """
@@ -46,7 +47,7 @@ class BucketBatchSampler(samplers.BatchSampler):
         batch_size,
         drop_last,
         sort_key,
-        bucket_size_multiplier=100,
+        bucket_size_multiplier,
     ):
         super().__init__(sampler, batch_size, drop_last)
         self.sort_key = sort_key
@@ -83,22 +84,18 @@ class TTSDataset(Dataset):
 
         with open(self.root / "lengths.json") as file:
             lengths = json.load(file)
-
-            self.lengths = list()
-            for path in self.metadata:
-                self.lengths.append(lengths[path.stem])
+            self.lengths = [lengths[path.stem] for path in self.metadata]
 
         self.index_longest_mel = np.argmax(self.lengths)
 
         self.cmudict = load_cmudict()
 
-        keys = {path.stem for path in self.metadata}
+        train_set = {path.stem for path in self.metadata}
         with open(text_path) as file:
-            self.text = {}
-            for line in file:
-                key, _, transcript = line.strip().split("|")
-                if key in keys:
-                    self.text[key] = transcript
+            text = (line.strip().split("|") for line in file)
+            self.text = {
+                key: transcript for key, _, transcript in text if key in train_set
+            }
 
     def sort_key(self, index):
         return self.lengths[index]
@@ -120,14 +117,16 @@ class TTSDataset(Dataset):
         )
 
 
-def pad_collate(batch):
+def pad_collate(batch, reduction_factor=2):
     mels, texts, attn_flag = zip(*batch)
     mels = list(mels)
     texts = list(texts)
 
-    # TODO: handle general reduction factor
-    if len(mels[0]) % 2 != 0:
-        mels[0] = F.pad(mels[0], (0, 0, 0, 1))
+    # if len(mels[0]) is not a multiple of reduction_factor pad
+    # note: mels[0] is the longest mel in the batch so when we call pad_sequence
+    # the whole batch will get padded to a multiple of reduction_factor
+    if len(mels[0]) % reduction_factor != 0:
+        mels[0] = F.pad(mels[0], (0, 0, 0, reduction_factor - 1))
 
     mel_lengths = [len(mel) for mel in mels]
     text_lengths = [len(text) for text in texts]

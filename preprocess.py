@@ -1,14 +1,14 @@
-import hydra
-import hydra.utils as utils
-from omegaconf import OmegaConf
+import argparse
+import json
+from concurrent.futures import ProcessPoolExecutor
+from multiprocessing import cpu_count
+from pathlib import Path
+
 import librosa
 import numpy as np
 import pyloudnorm as pyln
-from pathlib import Path
-from multiprocessing import cpu_count
-from concurrent.futures import ProcessPoolExecutor
+import toml
 from tqdm import tqdm
-import json
 
 
 def melspectrogram(
@@ -39,7 +39,7 @@ def melspectrogram(
     return logmel / top_db
 
 
-def mu_compress(wav, hop_length=200, frame_length=800, bits=8):
+def mu_compress(wav, hop_length=200, frame_length=800, bits=10):
     wav = np.pad(wav, (frame_length // 2,), mode="reflect")
     wav = wav[: ((wav.shape[0] - frame_length) // hop_length + 1) * hop_length]
     wav = 2 ** (bits - 1) + librosa.mu_compress(wav, mu=2 ** bits - 1)
@@ -47,8 +47,8 @@ def mu_compress(wav, hop_length=200, frame_length=800, bits=8):
 
 
 def process_wav(wav_path, out_path, cfg):
-    meter = pyln.Meter(cfg.sr)
-    wav, _ = librosa.load(wav_path.with_suffix(".wav"), sr=cfg.sr)
+    meter = pyln.Meter(cfg["sr"])
+    wav, _ = librosa.load(wav_path.with_suffix(".wav"), sr=cfg["sr"])
     loudness = meter.integrated_loudness(wav)
     wav = pyln.normalize.loudness(wav, loudness, -24)
     peak = np.abs(wav).max()
@@ -57,21 +57,21 @@ def process_wav(wav_path, out_path, cfg):
 
     logmel = melspectrogram(
         wav,
-        sr=cfg.sr,
-        hop_length=cfg.hop_length,
-        win_length=cfg.win_length,
-        n_fft=cfg.n_fft,
-        n_mels=cfg.n_mels,
-        fmin=cfg.fmin,
-        preemph=cfg.preemph,
-        top_db=cfg.top_db,
+        sr=cfg["sr"],
+        hop_length=cfg["hop_length"],
+        win_length=cfg["win_length"],
+        n_fft=cfg["n_fft"],
+        n_mels=cfg["n_mels"],
+        fmin=cfg["fmin"],
+        preemph=cfg["preemph"],
+        top_db=cfg["top_db"],
     )
 
     wav = mu_compress(
         wav,
-        hop_length=cfg.hop_length,
-        frame_length=cfg.win_length,
-        bits=cfg.mulaw.bits,
+        hop_length=cfg["hop_length"],
+        frame_length=cfg["win_length"],
+        bits=cfg["mulaw"]["bits"],
     )
 
     np.save(out_path.with_suffix(".mel.npy"), logmel)
@@ -79,10 +79,11 @@ def process_wav(wav_path, out_path, cfg):
     return out_path, logmel.shape[-1]
 
 
-@hydra.main(config_path="tacotron/config", config_name="preprocess")
-def preprocess_dataset(cfg):
-    in_dir = Path(utils.to_absolute_path(cfg.in_dir))
-    out_dir = Path(utils.to_absolute_path(cfg.out_dir))
+def preprocess_dataset(args):
+    with open("tacotron/config.toml") as file:
+        cfg = toml.load(file)
+
+    in_dir, out_dir = Path(args.in_dir), Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
     executor = ProcessPoolExecutor(max_workers=cpu_count())
@@ -96,20 +97,24 @@ def preprocess_dataset(cfg):
             out_path = out_dir / out_path
             out_path.parent.mkdir(parents=True, exist_ok=True)
             futures.append(
-                executor.submit(process_wav, wav_path, out_path, cfg.preprocess)
+                executor.submit(process_wav, wav_path, out_path, cfg["preprocess"])
             )
 
     results = [future.result() for future in tqdm(futures)]
 
-    lengths = {result[0].stem: result[1] for result in results}
+    lengths = {path.stem: length for path, length in results}
     with open(out_dir / "lengths.json", "w") as file:
         json.dump(lengths, file, indent=4)
 
     frames = sum(lengths.values())
-    frame_shift_ms = cfg.preprocess.hop_length / cfg.preprocess.sr
+    frame_shift_ms = cfg["preprocess"]["hop_length"] / cfg["preprocess"]["sr"]
     hours = frames * frame_shift_ms / 3600
     print(f"Wrote {len(lengths)} utterances, {frames} frames ({hours:.2f} hours)")
 
 
 if __name__ == "__main__":
-    preprocess_dataset()
+    parser = argparse.ArgumentParser(description="Preprocess an audio dataset.")
+    parser.add_argument("in_dir", help="Path to the dataset directory")
+    parser.add_argument("out_dir", help="Path to the output directory")
+    args = parser.parse_args()
+    preprocess_dataset(args)

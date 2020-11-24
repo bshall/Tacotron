@@ -1,0 +1,76 @@
+[preprocess]
+sr = 16000
+hop_length = 200
+win_length = 800
+n_fft = 2048
+n_mels = 80
+fmin = 50
+preemph = 0.97
+top_db = 80
+ref_db = 20
+mulaw.bits = 10
+
+[train]
+batch_size = 64
+bucket_size_multiplier = 5
+n_steps = 250000
+checkpoint_interval = 5000
+n_workers = 8
+clip_grad_norm = 0.05
+
+[train.optimizer]
+lr = 1e-3
+
+[train.scheduler]
+milestones = [
+    20000, 
+    40000,
+    100000,
+    150000,
+    200000,
+]
+gamma = 0.5
+
+[model.encoder]
+n_symbols = 91
+embedding_dim = 256
+
+[model.encoder.prenet]
+input_size = 256  # should match model.encoder.embedding_dim
+hidden_size = 256
+output_size = 128
+dropout = 0.5
+
+[model.encoder.cbhg]
+input_channels = 128  # should match model.encoder.prenet.output_size
+K = 16
+channels = 128
+projection_channels = 128
+n_highways = 4
+highway_size = 128
+rnn_size = 128
+
+[model.decoder]
+input_size = 128  # should match model.encoder.cbhg.channels
+n_mels = 80  # should match preprocess.n_mels
+attn_rnn_size = 256
+decoder_rnn_size = 256
+reduction_factor = 2
+zoneout_prob = 0.1
+
+[model.decoder.prenet]
+input_size = 80  # should match preprocess.n_mels
+hidden_size = 256
+output_size = 128
+dropout = 0.5
+
+[model.decoder.attention]
+attn_rnn_size = 256  # should match model.decoder.attn_rnn_size
+hidden_size = 128
+static_channels = 8
+static_kernel_size = 21
+dynamic_channels = 8
+dynamic_kernel_size = 21
+prior_length = 11
+alpha = 0.1
+beta = 0.9

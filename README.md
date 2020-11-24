@@ -2,27 +2,27 @@
     <a href="https://colab.research.google.com/github/bshall/Tacotron/blob/main/tacotron-demo.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
 </p>
 
-# Tacotron (with Dynamic Convolution Attention)
+# Tacotron with Location Relative Attention
 
-A PyTorch implementation of [Location-Relative Attention Mechanisms For Robust Long-Form Speech Synthesis](https://arxiv.org/abs/1910.10288). Audio samples can be found [here](bshall.github.io/tacotron/). Colab demo can be found [here](https://colab.research.google.com/github/bshall/Tacotron/blob/main/tacotron-demo.ipynb).
+A PyTorch implementation of [Location-Relative Attention Mechanisms For Robust Long-Form Speech Synthesis](https://arxiv.org/abs/1910.10288). Audio samples can be found [here](https://bshall.github.io/Tacotron/). Colab demo can be found [here](https://colab.research.google.com/github/bshall/Tacotron/blob/main/tacotron-demo.ipynb).
 
 <div align="center">
-    <img width="655" height="390" alt="Tacotron (with Dynamic Convolution Attention)" 
+    <img width="655" height="390" alt="Tacotron (with Dynamic Convolution Attention)"
       src="https://raw.githubusercontent.com/bshall/Tacotron/main/tacotron.png"><br>
     <sup><strong>Fig 1:</strong>Tacotron (with Dynamic Convolution Attention).</sup>
 </div>
 
 <div align="center">
-    <img width="897" height="154" alt="Example Mel-spectrogram and attention plot" 
+    <img width="897" height="154" alt="Example Mel-spectrogram and attention plot"
       src="https://raw.githubusercontent.com/bshall/Tacotron/main/example.png"><br>
     <sup><strong>Fig 2:</strong>Example Mel-spectrogram and attention plot.</sup>
 </div>
 
 ## Quick Start
 
-Ensure you have Python 3.6 and PyTorch 1.7 or greater installed. Then install this package with:
+Ensure you have Python 3.6 and PyTorch 1.7 or greater installed. Then install this package (along with the [univoc vocoder](https://github.com/bshall/UniversalVocoding)):
 ```
-pip install tacotron
+pip install tacotron univoc
 ```
 
 ## Example Usage
@@ -75,21 +75,47 @@ cd ./Tacotron
 ```
 2. Install requirements:
 ```
-pip install -r requirements.txt
+pipenv install
 ```
 3. Download and extract the [LJ-Speech dataset](https://keithito.com/LJ-Speech-Dataset/):
 ```
 wget https://data.keithito.com/data/speech/LJSpeech-1.1.tar.bz2
 tar -xvjf LJSpeech-1.1.tar.bz2
 ```
-4. Download the train split [here](https://github.com/bshall/Tacotron/releases/tag/v0.1) and extract it in the root directory of the repo.  
+4. Download the train split [here](https://github.com/bshall/Tacotron/releases/tag/v0.1) and extract it in the root directory of the repo.
 5. Extract Mel spectrograms and preprocess audio:
 ```
-python preprocess.py in_dir=path/to/LJSpeech-1.1 out_dir=datasets/LJSpeech-1.1
+pipenv run python preprocess.py path/to/LJSpeech-1.1 datasets/LJSpeech-1.1
+```
+```
+usage: preprocess.py [-h] in_dir out_dir
+
+Preprocess an audio dataset.
+
+positional arguments:
+  in_dir      Path to the dataset directory
+  out_dir     Path to the output directory
+
+optional arguments:
+  -h, --help  show this help message and exit
 ```
 6. Train the model:
 ```
-python train.py checkpoint_dir=ljspeech dataset_dir=datasets/LJSpeech-1.1 text_dir=path/to/LJSpeech-1.1/metadata.csv
+pipenv run python train.py ljspeech datasets/LJSpeech-1.1 text_dir=path/to/LJSpeech-1.1/metadata.csv
+```
+```
+usage: train.py [-h] [--resume RESUME] checkpoint_dir text_path dataset_dir
+
+Train Tacotron with dynamic convolution attention.
+
+positional arguments:
+  checkpoint_dir   Path to the directory where model checkpoints will be saved
+  text_path        Path to the dataset transcripts
+  dataset_dir      Path to the preprocessed data directory
+
+optional arguments:
+  -h, --help       show this help message and exit
+  --resume RESUME  Path to the checkpoint to resume from
 ```
 
 ## Pretrained Models

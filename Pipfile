@@ -1,0 +1,27 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+librosa = "*"
+tqdm = "*"
+torch = "*"
+tensorboard = "*"
+pyloudnorm = "*"
+matplotlib = "*"
+toml = "*"
+importlib-resources = "*"
+
+[dev-packages]
+flake8 = "*"
+black = "==20.8b1"
+isort = "*"
+setuptools = "*"
+twine = "*"
+build = "*"
+flake8-bugbear = "*"
+pre-commit = "*"
+
+[requires]
+python_version = "3.7"

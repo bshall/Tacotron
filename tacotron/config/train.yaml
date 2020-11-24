@@ -1,7 +1,0 @@
-defaults:
-  - config
-
-resume: false
-checkpoint_dir: ???
-text_path: ???
-dataset_dir: ???
