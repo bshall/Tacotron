@@ -21,6 +21,7 @@ A PyTorch implementation of [Location-Relative Attention Mechanisms For Robust L
 ## Quick Start
 
 Ensure you have Python 3.6 and PyTorch 1.7 or greater installed. Then install this package (along with the [univoc vocoder](https://github.com/bshall/UniversalVocoding)):
+
 ```
 pip install tacotron univoc
 ```
@@ -30,7 +31,6 @@ pip install tacotron univoc
 <p align="center">
     <a href="https://colab.research.google.com/github/bshall/Tacotron/blob/main/tacotron-demo.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
 </p>
-
 
 ```python
 import torch
@@ -69,24 +69,32 @@ sf.write("location_relative_attention.wav", wav, sr)
 ## Train from Scatch
 
 1. Clone the repo:
+
 ```
 git clone https://github.com/bshall/Tacotron
 cd ./Tacotron
 ```
+
 2. Install requirements:
+
 ```
 pipenv install
 ```
+
 3. Download and extract the [LJ-Speech dataset](https://keithito.com/LJ-Speech-Dataset/):
+
 ```
 wget https://data.keithito.com/data/speech/LJSpeech-1.1.tar.bz2
 tar -xvjf LJSpeech-1.1.tar.bz2
 ```
+
 4. Download the train split [here](https://github.com/bshall/Tacotron/releases/tag/v0.1) and extract it in the root directory of the repo.
 5. Extract Mel spectrograms and preprocess audio:
+
 ```
 pipenv run python preprocess.py path/to/LJSpeech-1.1 datasets/LJSpeech-1.1
 ```
+
 ```
 usage: preprocess.py [-h] in_dir out_dir
 
@@ -99,10 +107,13 @@ positional arguments:
 optional arguments:
   -h, --help  show this help message and exit
 ```
+
 6. Train the model:
+
 ```
-pipenv run python train.py ljspeech datasets/LJSpeech-1.1 path/to/LJSpeech-1.1/metadata.csv
+pipenv run python train.py ljspeech path/to/LJSpeech-1.1/metadata.csv datasets/LJSpeech-1.1
 ```
+
 ```
 usage: train.py [-h] [--resume RESUME] checkpoint_dir text_path dataset_dir
 
