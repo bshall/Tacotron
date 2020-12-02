@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <title>Tacotron with Location Relative Attention</title>
+    <link rel="icon" type="image/png" href="icon.svg">
+</head>
+
+<body>
+    <header>
+        <h1>Tacotron with Location Relative Attention</h1>
+        <p>A PyTorch implementation of Location-Relative Attention Mechanisms For Robust Long-Form Speech Synthesis</p>
+        <hr>
+    </header>
+    <main>
+        <p>This page contains audio samples from <a
+                href="https://github.com/bshall/Tacotron">https://github.com/bshall/Tacotron</a>: an implementation
+            of<br>
+            <a href="https://arxiv.org/abs/1910.10288">"Location-Relative Attention
+                Mechanisms For Robust Long-Form Speech Synthesis",
+                E. Battenberg, (2020).</a>
+        </p>
+        <h4>Notable differences from the paper:</h4>
+        <ul>
+            <li>Trained using a batch size of 64 on a single GPU (using automatic mixed precision)</li>
+            <li>Used a gradient clipping threshold of 0.05 as it seems to stabilize the alignment with the smaller batch
+                size.</li>
+            <li>Used a different learning rate schedule (again to deal with smaller batch size).</li>
+            <li>Used <a
+                    href="https://github.com/bshall/UniversalVocoding">https://github.com/bshall/UniversalVocoding</a>
+                to generate waveforms instead of WaveRNN. The vocoder was trained on the ground-truth spectrograms.
+            </li>
+            <li>
+                Used 80-bin (instead of 128 bin) log-Mel spectrograms.
+            </li>
+        </ul>
+        <h2>In-Domain</h2>
+        <hr>
+        <p>
+            <strong>Text:</strong> especially as no more time is occupied, or cost incurred, in casting, setting, or
+            printing beautiful letters
+        </p>
+        <table>
+            <thead>
+                <th>Ground Truth</th>
+                <th>DCA</th>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <audio
+                            src="https://drive.google.com/uc?export=preview&id=1wu4iQNLrUnbMbllIMXn3BG8rfkvK_YRh"
+                            controls preload>
+                        </audio>
+                    </td>
+                    <td>
+                        <audio
+                            src="https://drive.google.com/uc?export=preview&id=1fBGQd1lHJUUWMo9odHGFjs8Jm_kxyCIA"
+                            controls preload>
+                        </audio>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>
+            <strong>Text:</strong> Commercialism again compels the use of type too small in size to be comfortable reading:
+        </p>
+        <table>
+            <thead>
+                <th>Ground Truth</th>
+                <th>DCA</th>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <audio
+                            src="https://drive.google.com/uc?export=preview&id=1TbgLZ51TAtCVINaTIhdM2Bbaez-UrqoA"
+                            controls preload>
+                        </audio>
+                    </td>
+                    <td>
+                        <audio
+                            src="https://drive.google.com/uc?export=preview&id=1W5zPN9I7_FWrjFweh0zOdq6nRlcz54Bb"
+                            controls preload>
+                        </audio>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>
+            <strong>Text:</strong> Five. The master felons' side. Six. The female felons' side. Seven. The state side.
+        </p>
+        <table>
+            <thead>
+                <th>Ground Truth</th>
+                <th>DCA</th>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <audio
+                            src="https://drive.google.com/uc?export=preview&id=1Ji5fnWXnopxT9s6U5-5E3h_6Yi021d1D"
+                            controls preload>
+                        </audio>
+                    </td>
+                    <td>
+                        <audio
+                            src="https://drive.google.com/uc?export=preview&id=1x8MWbEoz1SMCqgtRuYcF70gQ4cLZtyiL"
+                            controls preload>
+                        </audio>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>
+            <strong>Text:</strong> His first forgery was the marvelous imitation of the signature of the Hon. Mr.
+            Neville, M.P., who wrote an extremely cramped and curious hand.
+        </p>
+        <table>
+            <thead>
+                <th>Ground Truth</th>
+                <th>DCA</th>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <audio
+                            src="https://drive.google.com/uc?export=preview&id=10QzerkxOoTjaTd25VlppA85EbPjJmW11"
+                            controls preload>
+                        </audio>
+                    </td>
+                    <td>
+                        <audio
+                            src="https://drive.google.com/uc?export=preview&id=1oqd7UN3gM-10Vuqpj3BWJfWpI_ZAZ1RG"
+                            controls preload>
+                        </audio>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>
+            <strong>Text:</strong> It was practically inoperative as regards the penalties for neglect. It was no doubt
+            as irksome and inconvenient to the Secretary of State
+        </p>
+        <table>
+            <thead>
+                <th>Ground Truth</th>
+                <th>DCA</th>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <audio
+                            src="https://drive.google.com/uc?export=preview&id=1p292ea1Eu9ZYyeIYNsUEEmKEXoV32zBL"
+                            controls preload>
+                        </audio>
+                    </td>
+                    <td>
+                        <audio
+                            src="https://drive.google.com/uc?export=preview&id=1wi3-KuScsoeWPhllMCk5tGHhplCu3GxX"
+                            controls preload>
+                        </audio>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>
+            <strong>Text:</strong> He asserted that Dallas had shed its reputation of the twenties as the, quote,
+            Southwest hate capital of Dixie, end quote
+        </p>
+        <table>
+            <thead>
+                <th>Ground Truth</th>
+                <th>DCA</th>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <audio
+                            src="https://drive.google.com/uc?export=preview&id=1gG5QXMSsRYM_5ha06rBCuBDiwqR4mDMN"
+                            controls preload>
+                        </audio>
+                    </td>
+                    <td>
+                        <audio
+                            src="https://drive.google.com/uc?export=preview&id=1jCUXrI5Q9Bv0YJlav_rKzJU4q9a2SrAb"
+                            controls preload>
+                        </audio>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>
+            <strong>Text:</strong> Into a hollow, like a crater in the middle of the flour, empty your sponge-bowl, and
+            work the flour down into it.
+        </p>
+        <table>
+            <thead>
+                <th>Ground Truth</th>
+                <th>DCA</th>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <audio
+                            src="https://drive.google.com/uc?export=preview&id=1EoZPYsMDowsKgeOSHhGuzmrQRJ7xG99E"
+                            controls preload>
+                        </audio>
+                    </td>
+                    <td>
+                        <audio
+                            src="https://drive.google.com/uc?export=preview&id=1DiqMU9jLL6A1nTxi_pmLi-T6SITxS5Yg"
+                            controls preload>
+                        </audio>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <p>
+            <strong>Text:</strong> Under our system, measures must be sought to afford security without impeding the
+            President's performance of his many functions.
+        </p>
+        <table>
+            <thead>
+                <th>Ground Truth</th>
+                <th>DCA</th>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <audio
+                            src="https://drive.google.com/uc?export=preview&id=1G3J-3pHf1Dufx8lVwkHxLtHJGbMSA8Kr"
+                            controls preload>
+                        </audio>
+                    </td>
+                    <td>
+                        <audio
+                            src="https://drive.google.com/uc?export=preview&id=1xkBOtGnJ9RFXN2ckQeJcH0El5PxFx7Qt"
+                            controls preload>
+                        </audio>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <h2>Generalization to Long Utterances</h2>
+        <hr>
+        <p>
+            <strong>Text:</strong> Nearly ten years had passed since the Dursleys had woken up to find their nephew on
+            the front step, but Privet Drive had hardly changed at all. The sun rose on the same tidy front gardens and lit up the brass
+            number four on the Dursleys' front door; it crept into their living room, which was almost exactly the same
+            as it had been on the night when Mr. Dursley had seen that fateful news report about the owls.
+        </p>
+        <audio src="https://drive.google.com/uc?export=preview&id=1_F1VM_6lx9KVSFAlfIiin_ob4SfcH49B" controls
+            preload>
+        </audio>
+        <hr>
+        <p>
+            <strong>Text:</strong> Only the photographs on the mantelpiece really showed how much time had passed. Ten
+            years ago, there had been lots of pictures of what looked like a large pink beach ball wearing different-colored bonnets -
+            but Dudley Dursley was no longer a baby, and now the photographs showed a large blond boy riding his first
+            bicycle, on a carousel at the fair, playing a computer game with his father, being hugged and kissed by his
+            mother.
+        </p>
+        <audio src="https://drive.google.com/uc?export=preview&id=1ITeqaUZbqMwPvKi1Y95Tt3UwGveG1rCe" controls
+            preload>
+        </audio>
+        <hr>
+        <p>
+            <strong>Text:</strong> Uncle Vernon entered the kitchen as Harry was turning over the bacon. "Comb your
+            hair!" he barked, by way of a morning greeting. About once a week, Uncle Vernon looked over the top of his newspaper and shouted
+            that Harry needed a haircut. Harry must have had more haircuts than the rest of the boys in his class put
+            together, but it made no difference, his hair simply grew that way - all over the place.
+        </p>
+        <audio src="https://drive.google.com/uc?export=preview&id=1pBdCYnhXqHYVv3u5ZEp85B2RdZaKv1qo" controls
+            preload>
+        </audio>
+        <hr>
+        <p>
+            <strong>Text:</strong> Raindrops the size of bullets thundered on the castle windows for days on end; the
+            lake rose, the flower beds turned into muddy streams, and Hagrid's pumpkins swelled to the size of garden sheds. Oliver
+            Wood's enthusiasm for regular training sessions, however, was not dampened, which was why Harry was to be
+            found, late one stormy Saturday afternoon a few days before Halloween, returning to Gryffindor Tower,
+            drenched to the skin and splattered with mud.
+        </p>
+        <audio src="https://drive.google.com/uc?export=preview&id=1oUc4BI4rYJDeUT32bvYR_k2s8OFcopLH" controls
+            preload>
+        </audio>
+        <hr>
+        <p>
+            <strong>Text:</strong> Harry had the best morning he'd had in a long time. He was careful to walk a little
+            way apart from the Dursleys so that Dudley and Piers, who were starting to get bored with the animals by lunchtime, wouldn't
+            fall back on their favorite hobby of hitting him. They ate in the zoo restaurant, and when Dudley had a
+            tantrum because his knickerbocker glory didn't have enough ice cream on top, Uncle Vernon bought him another
+            one and Harry was allowed to finish the first. Harry felt, afterward, that he should have known it was all
+            too good to last. After lunch they went to the reptile house. It was cool and dark in there, with lit
+            windows all along the walls. Behind the glass, all sorts of lizards and snakes were crawling and slithering
+            over bits of wood and stone. Dudley and Piers wanted to see huge, poisonous cobras and thick, man-crushing
+            pythons. Dudley quickly found the largest snake in the place. It could have wrapped its body twice around
+            Uncle Vernon's car and crushed it into a trash can - but at the moment it didn't look in the mood. In fact,
+            it was fast asleep.
+        </p>
+        <audio src="https://drive.google.com/uc?export=preview&id=1tJGiUFuTQt0LmMW59Syf8SKGRX_J_AXw" controls
+            preload>
+        </audio>
+        <hr>
+        <p>
+            <strong>Text:</strong> Exactly why Dudley wanted a racing bike was a mystery to Harry, as Dudley was very
+            fat and hated exercise - unless of course it involved punching somebody. Dudley's favorite punching bag was Harry, but he
+            couldn't often catch him. Harry didn't look it, but he was very fast. Perhaps it had something to do with
+            living in a dark cupboard, but Harry had always been small and skinny for his age. He looked even smaller
+            and skinnier than he really was because all he had to wear were old clothes of Dudley's, and Dudley was
+            about four times bigger than he was. Harry had a thin face, knobbly knees, black hair, and bright green
+            eyes. He wore round glasses held together with a lot of Scotch tape because of all the times Dudley had
+            punched him on the nose. The only thing Harry liked about his own appearance was a very thin scar on his
+            forehead that was shaped like a bolt of lightning. He had had it as long as he could remember, and the first
+            question he could ever remember asking his Aunt Petunia was how he had gotten it.
+        </p>
+        <audio src="https://drive.google.com/uc?export=preview&id=1oHDOsHA4shci-euGYFok478PxQwrsK2m" controls
+            preload>
+        </audio>
+        <hr>
+        <p>
+            <strong>Text:</strong> Harry lay in his dark cupboard much later, wishing he had a watch. He didn't know
+            what time it was and he couldn't be sure the Dursleys were asleep yet. Until they were, he couldn't risk sneaking to the kitchen
+            for some food. He'd lived with the Dursleys almost ten years, ten miserable years, as long as he could
+            remember, ever since he'd been a baby and his parents had died in that car crash. He couldn't remember being
+            in the car when his parents had died. Sometimes, when he strained his memory during long hours in his
+            cupboard, he came up with a strange vision: a blinding flash of green light and a burning pain on his
+            forehead. This, he supposed, was the crash, though he couldn't imagine where all the green light came from.
+            He couldn't remember his parents at all. His aunt and uncle never spoke about them, and of course he was
+            forbidden to ask questions. There were no photographs of them in the house. When he had been younger, Harry
+            had dreamed and dreamed of some unknown relation coming to take him away, but it had never happened; the
+            Dursleys were his only family. Yet sometimes he thought (or maybe hoped) that strangers in the street seemed
+            to know him. Very strange strangers they were, too.
+        </p>
+        <audio src="https://drive.google.com/uc?export=preview&id=1H9A3Ms8M0vN1Tk3cGLrN6YcTXL7SgRSc" controls
+            preload>
+        </audio>
+        <hr>
+        <p>
+            <strong>Text:</strong> October arrived, spreading a damp chill over the grounds and into the castle. Madam
+            Pomfrey, the nurse, was kept busy by a sudden spate of colds among the staff and students. Her Pepperup potion worked
+            instantly, though it left the drinker smoking at the ears for several hours afterward. Ginny Weasley, who
+            had been looking pale, was bullied into taking some by Percy. The steam pouring from under her vivid hair
+            gave the impression that her whole head was on fire. Raindrops the size of bullets thundered on the castle
+            windows for days on end; the lake rose, the flower beds turned into muddy streams, and Hagrid's pumpkins
+            swelled to the size of garden sheds. Oliver Wood's enthusiasm for regular training sessions, however, was
+            not dampened, which was why Harry was to be found, late one stormy Saturday afternoon a few days before
+            Halloween, returning to Gryffindor Tower, drenched to the skin and splattered with mud. Even aside from the
+            rain and wind{1} it hadn't been a happy practice session. Fred and George, who had been spying on the
+            Slytherin team, had seen for themselves the speed of those new Nimbus Two Thousand and Ones. They reported
+            that the Slytherin team was no more than seven greenish blurs, shooting through the air like missiles.
+        </p>
+        <audio src="https://drive.google.com/uc?export=preview&id=1CxSqCRQOGsFuhumxdqNM33s2-5fmpVfJ" controls
+            preload>
+        </audio>
+    </main>
+</body>
+
+</html>
